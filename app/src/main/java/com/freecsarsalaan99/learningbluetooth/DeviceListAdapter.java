@@ -1,4 +1,5 @@
 package com.freecsarsalaan99.learningbluetooth;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -12,9 +13,9 @@ import java.util.ArrayList;
 
 public class DeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
 
-    private LayoutInflater mLayoutInflater;
-    private ArrayList<BluetoothDevice> mDevices;
-    private int  mViewResourceId;
+    private final LayoutInflater mLayoutInflater;
+    private final ArrayList<BluetoothDevice> mDevices;
+    private final int  mViewResourceId;
 
     public DeviceListAdapter(Context context, int tvResourceId, ArrayList<BluetoothDevice> devices){
         super(context, tvResourceId,devices);
@@ -23,14 +24,15 @@ public class DeviceListAdapter extends ArrayAdapter<BluetoothDevice> {
         mViewResourceId = tvResourceId;
     }
 
+    @SuppressLint("ViewHolder")
     public View getView(int position, View convertView, ViewGroup parent) {
         convertView = mLayoutInflater.inflate(mViewResourceId, null);
 
         BluetoothDevice device = mDevices.get(position);
 
         if (device != null) {
-            TextView deviceName = (TextView) convertView.findViewById(R.id.tvDeviceName);
-            TextView deviceAdress = (TextView) convertView.findViewById(R.id.tvDeviceAddress);
+            TextView deviceName = convertView.findViewById(R.id.tvDeviceName);
+            TextView deviceAdress = convertView.findViewById(R.id.tvDeviceAddress);
 
             if (deviceName != null) {
                 deviceName.setText(device.getName());
