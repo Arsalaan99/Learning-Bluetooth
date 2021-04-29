@@ -18,9 +18,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 
-public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public abstract class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private static final String TAG = "MainActivity";
 
     BluetoothAdapter mBluetoothAdapter;
@@ -28,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public ArrayList<BluetoothDevice> mBTDevices = new ArrayList<>();
     public DeviceListAdapter mDeviceListAdapter;
     ListView lvNewDevices;
+
 
    /* @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -148,6 +150,16 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
             if (action.equals(BluetoothDevice.ACTION_BOND_STATE_CHANGED)){
                 BluetoothDevice mDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                String PIN = "0000";
+
+                try {
+                 byte[] pin;
+                    pin = (byte[])BluetoothDevice.class.getMethod("convertPinToBytes", String.class).invoke(BluetoothDevice.class, PIN);
+                    BluetoothDevice.class.getMethod("setPin", byte[].class).invoke(mDevice, (Object) pin);
+                } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e){
+                    e.printStackTrace();
+                }
+
                 //case 1 already bonded
                 if (mDevice.getBondState() == BluetoothDevice.BOND_BONDED){
                     Log.d(TAG, "BroadcastReceiver: BOND_BONDED. ");
@@ -164,6 +176,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         }
     };
 
+
+
+
     @Override
     protected void onDestroy() {
         Log.d(TAG, "onDestroy: called.");
@@ -174,6 +189,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         unregisterReceiver(mBroadcastReceiver2);
         unregisterReceiver(mBroadcastReceiver3);
         unregisterReceiver(mBroadcastReceiver4);
+
     }
 
     @Override
@@ -274,6 +290,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     @Override
+
     public void onItemClick(AdapterView<?> parent, View view, int i, long l) {
         //first cancel discovery   i=position  id=l
         mBluetoothAdapter.cancelDiscovery();
@@ -286,13 +303,9 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         Log.d(TAG, "onItemClick: " + deviceAddress);
 
 
-        //create bond.
-        //min sdk jelly bean mr2
-        Log.d(TAG, "onItemClick: Trying to pair with " + deviceName);
-        Toast toast6 = Toast.makeText(getApplicationContext()," Trying to pair with "+deviceName,Toast.LENGTH_SHORT);
-        toast6.setGravity(Gravity.CENTER,0,200);
-        toast6.show();
-        mBTDevices.get(i).createBond();
+
 
     }
+
+
 }
